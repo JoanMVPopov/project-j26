@@ -8,6 +8,8 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vcs.VcsDataKeys
 import com.intellij.openapi.vcs.changes.ChangeListManager
@@ -55,8 +57,10 @@ class GenerateCommitAction : AnAction() {
 
         val commitMessageInterface = e.getData(VcsDataKeys.COMMIT_MESSAGE_CONTROL)
 
-        ApplicationManager.getApplication().executeOnPooledThread {
-            try {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generating commit message...", false) {
+            override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
+                indicator.isIndeterminate = true
+
                 // repository!! because we know it is not null, assert it
                 val handler = GitLineHandler(project, repository!!.root, GitCommand.DIFF)
                 // only show staged changes with --cached
@@ -70,7 +74,7 @@ class GenerateCommitAction : AnAction() {
                     ApplicationManager.getApplication().invokeLater {
                         Messages.showInfoMessage(project, "Staged changes produced an empty diff.", "AI Commit Message")
                     }
-                    return@executeOnPooledThread
+                    return
                 }
 
                 val llmService = service<LlmService>()
@@ -79,11 +83,11 @@ class GenerateCommitAction : AnAction() {
                 ApplicationManager.getApplication().invokeLater {
                     commitMessageInterface?.setCommitMessage(message)
                 }
-            }catch (ex: Exception) {
-                ApplicationManager.getApplication().invokeLater {
-                    Messages.showErrorDialog(project, "Failed to generate commit message: ${ex.message}", "AI Commit Message")
-                }
             }
-        }
+
+            override fun onThrowable(error: Throwable) {
+                Messages.showErrorDialog(project, "Failed to generate commit message: ${error.message}", "AI Commit Message")
+            }
+        })
     }
 }
