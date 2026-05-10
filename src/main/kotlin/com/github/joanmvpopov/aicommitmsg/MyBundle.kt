@@ -1,4 +1,4 @@
-package com.github.joanmvpopov.projectj26
+package com.github.joanmvpopov.aicommitmsg
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
