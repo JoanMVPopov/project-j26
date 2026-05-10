@@ -74,7 +74,7 @@ class LlmService {
          * Also, sets temperature to 0 to ensure consitent results
          * Source: https://openrouter.ai/docs/api/reference/overview#requests
          */
-        val model = settings.state.modelName ?: "openrouter/free"
+        val model = settings.state.modelName.takeUnless { it.isNullOrEmpty() } ?: "openrouter/free"
         val gson = Gson()
 
         val body = JsonObject().apply {
@@ -83,7 +83,7 @@ class LlmService {
             add("messages", JsonArray().apply {
                 add(JsonObject().apply {
                     addProperty("role", "system")
-                    addProperty("content", "You are a commit message generator. Given a git diff, write a clear, concise commit message. Use imperative mood. No quotes or markdown.")
+                    addProperty("content", "You are a commit message generator. Given a git diff, write a clear, concise commit message. Use imperative mood. No quotes or markdown. Single line")
                 })
                 add(JsonObject().apply {
                     addProperty("role", "user")
