@@ -24,4 +24,13 @@
                 parentId="tools"/>
         <postStartupActivity implementation="com.github.joanmvpopov.aicommitmsg.startup.ApiKeyPreloader"/>
     </extensions>
+    <actions>
+        <action id="AiCommitMessage.Generate"
+                class="com.github.joanmvpopov.aicommitmsg.actions.GenerateCommitAction"
+                text="Generate AI Commit Message"
+                description="Generate a commit message from staged changes using an LLM"
+                icon="AllIcons.Toolwindows.ToolWindowAskAI">
+            <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>

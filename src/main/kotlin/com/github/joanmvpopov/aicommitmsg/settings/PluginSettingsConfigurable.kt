@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.ui.Messages
 import java.awt.Dimension
 import javax.swing.*
 import javax.swing.event.DocumentEvent
@@ -59,7 +60,14 @@ class PluginSettingsConfigurable : Configurable {
             settings.setApiKey(key)
             apiKeyModified = false
         }
-        settings.state.modelName = modelNameField?.text ?: ""
+//        settings.state.modelName = modelNameField?.text ?: ""
+        val modelName = modelNameField?.text
+        if (modelName.isNullOrEmpty()) {
+            settings.state.modelName = "openrouter/free"
+            modelNameField?.text = "openrouter/free"
+            Messages.showInfoMessage("Model name was empty. Reset to default: openrouter/free", "AI Commit Message")
+        }
+        settings.state.modelName = modelName
     }
 
     override fun reset() {
