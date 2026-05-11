@@ -106,6 +106,45 @@ jobs:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
 
+  # Run integration tests with xvfb for a virtual display
+  integrationTest:
+    name: Integration Test
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      - name: Fetch Sources
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+
+      - name: Run Integration Tests
+        run: xvfb-run ./gradlew integrationTest
+
+      - name: Collect Integration Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: integration-tests-result
+          path: ${{ github.workspace }}/build/reports/tests
+
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
     name: Verify plugin
@@ -154,7 +193,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, test, verify ]
+    needs: [ build, test, verify, integrationTest ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
