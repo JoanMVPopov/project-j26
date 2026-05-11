@@ -7,3 +7,4 @@ build
 PLAN.md
 out/
 allure-results/
+.env
