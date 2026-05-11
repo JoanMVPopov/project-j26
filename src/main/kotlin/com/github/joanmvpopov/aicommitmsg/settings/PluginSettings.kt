@@ -20,7 +20,7 @@ class PluginSettings : SimplePersistentStateComponent<PluginSettings.State>(Stat
     // make sure it's visible across threads
     @Volatile
     var cachedApiKey: String? = null
-        // read from anywhere, set from PlugginSettings
+        // read from anywhere, set from PluginSettings
         private set
 
     fun loadApiKey() {

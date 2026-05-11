@@ -60,14 +60,16 @@ class PluginSettingsConfigurable : Configurable {
             settings.setApiKey(key)
             apiKeyModified = false
         }
-//        settings.state.modelName = modelNameField?.text ?: ""
+
         val modelName = modelNameField?.text
         if (modelName.isNullOrEmpty()) {
             settings.state.modelName = "openrouter/free"
             modelNameField?.text = "openrouter/free"
             Messages.showInfoMessage("Model name was empty. Reset to default: openrouter/free", "AI Commit Message")
         }
-        settings.state.modelName = modelName
+        else {
+            settings.state.modelName = modelName
+        }
     }
 
     override fun reset() {

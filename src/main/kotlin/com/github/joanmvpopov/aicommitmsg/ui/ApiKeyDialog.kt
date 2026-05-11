@@ -15,7 +15,7 @@ class ApiKeyDialog(project: Project) : DialogWrapper(project) {
 
     init {
         title = "OpenRouter API Key Required"
-        setOKButtonText("Save & Generate")
+        setOKButtonText("Save and Generate")
         init()
     }
 

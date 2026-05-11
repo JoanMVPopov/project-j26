@@ -12,8 +12,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
 
-<!--    <resource-bundle>messages.MyBundle</resource-bundle>-->
-
     <extensions defaultExtensionNs="com.intellij">
         <!-- parentId="tools" means that we added the section under settings - tools -->
         <!-- source: https://plugins.jetbrains.com/docs/intellij/settings-guide.html#declaring-application-settings -->
