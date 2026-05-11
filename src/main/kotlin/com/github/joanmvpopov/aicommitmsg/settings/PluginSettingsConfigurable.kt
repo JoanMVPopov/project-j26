@@ -5,6 +5,8 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.Messages
+import com.intellij.ui.components.JBLabel
+import com.intellij.util.ui.FormBuilder
 import java.awt.Dimension
 import javax.swing.*
 import javax.swing.event.DocumentEvent
@@ -21,29 +23,59 @@ class PluginSettingsConfigurable : Configurable {
 
     override fun getDisplayName() = "AI Commit Message"
 
+//    override fun createComponent(): JComponent? {
+//        panel = JPanel().apply {
+//            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+//
+//            add(JLabel("OpenRouter API Key:"))
+//            apiKeyField = JPasswordField(40).also {
+//                it.maximumSize = Dimension(Int.MAX_VALUE, it.preferredSize.height)
+//                it.document.addDocumentListener(object : DocumentListener {
+//                    override fun insertUpdate(e: DocumentEvent) { apiKeyModified = true }
+//                    override fun removeUpdate(e: DocumentEvent) { apiKeyModified = true }
+//                    override fun changedUpdate(e: DocumentEvent) { apiKeyModified = true }
+//                })
+//                add(it)
+//            }
+//
+//            add(Box.createVerticalStrut(10))
+//
+//            add(JLabel("Model Name:"))
+//            modelNameField = JTextField(40).also {
+//                it.maximumSize = Dimension(Int.MAX_VALUE, it.preferredSize.height)
+//                add(it)
+//            }
+//        }
+//
+//        return panel
+//    }
+
     override fun createComponent(): JComponent? {
-        panel = JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-
-            add(JLabel("OpenRouter API Key:"))
-            apiKeyField = JPasswordField(40).also {
-                it.maximumSize = Dimension(Int.MAX_VALUE, it.preferredSize.height)
-                it.document.addDocumentListener(object : DocumentListener {
-                    override fun insertUpdate(e: DocumentEvent) { apiKeyModified = true }
-                    override fun removeUpdate(e: DocumentEvent) { apiKeyModified = true }
-                    override fun changedUpdate(e: DocumentEvent) { apiKeyModified = true }
-                })
-                add(it)
-            }
-
-            add(Box.createVerticalStrut(10))
-
-            add(JLabel("Model Name:"))
-            modelNameField = JTextField(40).also {
-                it.maximumSize = Dimension(Int.MAX_VALUE, it.preferredSize.height)
-                add(it)
-            }
+        apiKeyField = JPasswordField(40).apply {
+            document.addDocumentListener(object : DocumentListener {
+                override fun insertUpdate(e: DocumentEvent) { apiKeyModified = true }
+                override fun removeUpdate(e: DocumentEvent) { apiKeyModified = true }
+                override fun changedUpdate(e: DocumentEvent) { apiKeyModified = true }
+            })
         }
+
+        modelNameField = JTextField(40)
+
+        panel = FormBuilder.createFormBuilder()
+            .addLabeledComponent("OpenRouter API Key:", apiKeyField!!)
+            .addComponentToRightColumn(
+                JBLabel("<html><small>Create a free key at <a href='https://openrouter.ai/openrouter/free/api'>openrouter.ai/openrouter/free/api</a></small></html>").apply {
+                    setCopyable(true)
+                }
+            )
+            .addVerticalGap(10)
+            .addLabeledComponent("Model Name:", modelNameField!!)
+            .addComponentToRightColumn(
+                JBLabel("<html><small>The OpenRouter model to use. Leave empty for default (openrouter/free),<br>which reroutes your request to the best available model, without incurring costs.<br>" +
+                        "You can also view all models <a href='https://openrouter.ai/models'>here</a></small></html>")
+            )
+            .addComponentFillVertically(JPanel(), 0)
+            .panel
 
         return panel
     }
@@ -60,14 +92,16 @@ class PluginSettingsConfigurable : Configurable {
             settings.setApiKey(key)
             apiKeyModified = false
         }
-//        settings.state.modelName = modelNameField?.text ?: ""
+
         val modelName = modelNameField?.text
         if (modelName.isNullOrEmpty()) {
             settings.state.modelName = "openrouter/free"
             modelNameField?.text = "openrouter/free"
             Messages.showInfoMessage("Model name was empty. Reset to default: openrouter/free", "AI Commit Message")
         }
-        settings.state.modelName = modelName
+        else {
+            settings.state.modelName = modelName
+        }
     }
 
     override fun reset() {
