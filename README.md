@@ -1,45 +1,87 @@
-# project-j26
+# AI Commit Message
 
-![Build](https://github.com/JoanMVPopov/project-j26/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+An IntelliJ IDEA plugin that generates commit messages from staged git diffs using OpenRouter's free LLM models.
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [group](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml), [name](./src/main/resources/META-INF/plugin.xml), and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin [description](./src/main/resources/META-INF/plugin.xml) (see [Tips][docs:plugin-description]) and this README to describe what your plugin does.
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+The plugin is not available through the Marketplace, but you can build it yourself using:
+```sh
+./gradlew runIde
+```
 
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+Check the `.run/` folder, alongside the `build.gradle.kts` settings in order to understand the setup
 
-## Installation
-
-- Using the IDE built-in plugin system:
-
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "project-j26"</kbd> >
-  <kbd>Install</kbd>
-
-- Using JetBrains Marketplace:
-
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
-
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
-- Manually:
-
-  Download the [latest release](https://github.com/JoanMVPopov/project-j26/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## Example Flow
 
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+https://github.com/user-attachments/assets/0353c733-3cd7-430d-ade4-e53169fa8145
+
+
+
+## Features
+
+- **One-click commit message generation** - click the AI button in the commit panel to generate a message from your staged changes
+- **First-run API key prompt** - if no API key is configured, a dialog prompts you to enter one before generating
+- **Settings page** - configure your OpenRouter API key and model under Settings > Tools > AI Commit Message
+- **Progress indicator** - a background progress bar shows while the LLM generates your message
+- **Free by default** - uses `openrouter/free`, which routes to the best available free model
+
+## Configuration
+
+Go to **Settings > Tools > AI Commit Message** to configure:
+
+- **OpenRouter API Key** - stored securely via IntelliJ's PasswordSafe
+- **Model Name** - defaults to `openrouter/free`. You can set a specific model (e.g. `meta-llama/llama-4-scout:free`)
+
+## Architecture
+
+| Component | Description |
+|---|---|
+| `GenerateCommitAction` | Action registered in `Vcs.MessageActionGroup`. Computes staged diff via Git4Idea, sends to LLM, sets commit message |
+| `LlmService` | Application-level service. Sends diffs to OpenRouter's API using JDK 21 HttpClient + Gson |
+| `PluginSettings` | Application-level `SimplePersistentStateComponent` for model name, PasswordSafe for API key |
+| `PluginSettingsConfigurable` | Settings UI under Tools > AI Commit Message |
+| `ApiKeyPreloader` | `ProjectActivity` that loads the API key from PasswordSafe on a background thread at startup |
+| `ApiKeyDialog` | `DialogWrapper` prompting for API key when not configured |
+
+## Testing
+
+### Unit Tests
+
+```sh
+./gradlew check
+```
+
+Tests cover LlmService (response parsing, request body construction) and PluginSettings (defaults, API key caching).
+
+Integration Tests
+
+```sh
+./gradlew integrationTest
+```
+
+Requires an OPENROUTER_API_KEY - set it in a .env file at the project root or export it as an environment variable.
+
+Integration tests use the IntelliJ Starter/Driver framework (https://plugins.jetbrains.com/docs/intellij/integration-tests-intro.html) to launch a real IDE instance with the plugin installed and interact with the UI.
+
+Test coverage:
+
+- Commit message generation with API key pre-configured
+- "No changes staged" error dialog when no files are staged
+- API key prompt dialog on first use, followed by generation
+- Invalid API key error handling 
+- Settings-based key configuration followed by generation
+
+▎ Note: Integration tests run in a two-process architecture (test JVM + IDE JVM), so only unit tests contribute to code coverage reports.
+
+Building
+
+```ss
+./gradlew buildPlugin
+```
+
+The plugin ZIP is output to build/distributions/.
+
+Requirements
+
+- IntelliJ IDEA 2025.2+
+- Java 21+
