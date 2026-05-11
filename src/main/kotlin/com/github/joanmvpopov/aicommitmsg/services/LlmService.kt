@@ -45,7 +45,7 @@ class LlmService {
 
     }
 
-    private fun parseResponse(responseBody: String): String {
+    internal fun parseResponse(responseBody: String): String {
         /**
          * Receives the response body from the Open Router endpoint
          * Parses the object using Gson and checks if the required fields are present
@@ -67,7 +67,7 @@ class LlmService {
         return message.get("content").asString.trim()
     }
 
-    private fun buildRequestBody(diff: String) : String {
+    internal fun buildRequestBody(diff: String) : String {
         /**
          * Builds the request body which the Open Router endpoint expects
          * Creates a JsonObject with the (primitive) fields required by the endpoint
