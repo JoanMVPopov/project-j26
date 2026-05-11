@@ -7,7 +7,7 @@ import com.intellij.ide.starter.junit5.hyphenateWithClass
 import com.intellij.ide.starter.models.IdeInfo
 import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
-import com.intellij.ide.starter.project.NoProject
+import com.intellij.ide.starter.project.GitHubProject
 import com.intellij.ide.starter.runner.CurrentTestMethod
 import com.intellij.ide.starter.runner.Starter
 import org.junit.jupiter.api.Test
@@ -33,7 +33,11 @@ class PluginIntegrationTest {
         )
 
         val testContext = Starter
-            .newContext(testName, TestCase(ide, projectInfo = NoProject).withVersion(ideVersion))
+            .newContext(testName, TestCase(ide, projectInfo = GitHubProject.fromGithub(
+                branchName = "main",
+                repoRelativeUrl = "TeamPraxidike/CAIT.git",
+                commitHash = "55f28ffb3dcc340679fa3eec4e87412b4446abce"
+            )).withVersion(ideVersion))
             .apply {
                 // install the plugin
                 // source: https://plugins.jetbrains.com/docs/intellij/integration-tests-intro.html#creating-the-first-integration-test
