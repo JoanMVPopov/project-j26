@@ -5,3 +5,5 @@
 .kotlin
 build
 PLAN.md
+out/
+allure-results/
