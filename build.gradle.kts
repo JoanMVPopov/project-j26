@@ -43,7 +43,7 @@ dependencies {
         testFramework(TestFrameworkType.Starter, configurationName = "integrationTestImplementation")
     }
 
-    integrationTestImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    integrationTestImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
     integrationTestImplementation("org.kodein.di:kodein-di-jvm:7.20.2")
     integrationTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")
     integrationTestImplementation("org.junit.platform:junit-platform-launcher")
